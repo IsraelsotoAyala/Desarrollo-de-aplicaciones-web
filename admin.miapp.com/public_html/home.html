@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ADMINISTRACION DE WEB</title>
+  <title>MI APP</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -17,9 +17,18 @@
 
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
 
+
+  <script type="text/javascript">
+    var TableProductos=null;
+
+  </script>
+
 </head>
 
 <body class="hold-transition sidebar-mini">
+
+
+
 <div class="wrapper">
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
@@ -36,7 +45,7 @@
       </li>
     </ul>
 
-   
+    
   </nav>
   <!-- /.navbar -->
 
@@ -61,7 +70,7 @@
           <img src="/assets/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">Israel jeff Soto Ayala</a>
+          <a href="#" class="d-block">Israel Jeff</a>
         </div>
       </div>
 
@@ -90,30 +99,25 @@
               </p>
             </a>
           </li>
-
-          </li>
+          
           <li class="nav-item">
             <a href="/categorias.html" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
                 Categorias
-              </p> 
+              </p>
             </a>
           </li>
+        
+          
+          
+          
           
           
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
-    </div></li>
-          <li class="nav-item">
-            <a href="widgets.html" class="nav-link active">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Productos
-              </p>
-            </a>
-          </li>
+    </div>
     <!-- /.sidebar -->
   </aside>
 
@@ -121,6 +125,10 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
+    
+    <div id="modalContainer1"></div>
+
+
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <div class="container-fluid">
@@ -136,6 +144,14 @@
           </div>
         </div>
       </div><!-- /.container-fluid -->
+
+
+
+      <button type="button" onclick="loadNuevoProducto();">
+        Nuevo Producto
+      </button>
+
+
     </section>
 
     <!-- Main content -->
@@ -152,6 +168,7 @@
                       <th>Nombre</th>
                       <th>Categoria</th>
                       <th>Precio</th>
+                      <th>Acciones</th>
                   </tr>
               </thead>
       </table>
@@ -166,6 +183,9 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+
+
+
 
 
 
@@ -191,20 +211,17 @@
 <script src="/assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- jQuery UI -->
 <script src="/assets/plugins/jquery-ui/jquery-ui.min.js"></script>
-<!-- AdminLTE App -->
-<script src="/assets/js/adminlte.min.js"></script>
-
 
 <script type="text/javascript" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 
+<script src="/assets/plugins/jquery-validation/jquery.validate.min.js"></script>
 
 
 <script type="text/javascript">
   
 $(document).ready(function(){
 
-
-$('#listProductos').DataTable( {
+TableProductos = $('#listProductos').DataTable( {
         "ajax":{
             type: 'get',
             url: "http://apis.miapp.com/api/v1/productos",
@@ -215,13 +232,89 @@ $('#listProductos').DataTable( {
             { data: 'codigo' },
             { data: 'nombre' },
             { data: 'categoria' },
-            { data: 'precio' }
+            { data: 'precio' },
+            {
+              targets: 4,
+
+                render: function (data, type, row) {
+                    return "<button onclick=\"loadEditarProducto('"+row.id+"')\">Editar</button> <button onclick=\"ConfirmarElimarProducto('"+row.id+"')\">Eliminar</button>";
+                },
+                
+            },
         ]
 
     });
 
 
 });
+
+
+function loadNuevoProducto()
+{
+  $("#modalContainer1").load("NuevoProducto.html",function(){
+
+    $('#mdlNuevoProducto').modal({
+        show: true
+    }); 
+
+  });
+}
+
+
+function loadEditarProducto(id)
+{
+  $("#modalContainer1").load("EditarProducto.html",function(){
+
+
+    $.ajax(
+      {
+        method:"get",
+        url:"http://apis.miapp.com/api/v1/productos/"+id
+      }
+    )
+    .done(function(response){
+      
+      $("#txtID").val(response.data.id);     
+      $("#txtCodigo").val(response.data.codigo);
+      $("#txtNombre").val(response.data.nombre);
+      $("#txtCategoria").val(response.data.categoria);
+      $("#txtPrecio").val(response.data.precio);
+
+      $('#mdlEditarProducto').modal({
+        show: true
+      }); 
+
+
+    });
+
+
+
+
+    
+
+  });
+}
+
+function ConfirmarElimarProducto(id)
+{
+  $("#modalContainer1").load("ConfirmarEliminarProducto.html",function(){
+
+    $("#frmEliminarProducto_txtID").val(id);
+
+    $('#mdlConfirmarEliminarProducto').modal({
+        show: true
+    }); 
+
+  });
+}
+
+
+function reloadTableProductos()
+{
+  TableProductos.ajax.reload();
+}
+
+
 
 </script>
 
